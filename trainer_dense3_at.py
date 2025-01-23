@@ -239,14 +239,9 @@ for index in range(total_epoch):
     train_str = train_metric.compute_metric()
     train_metric.reset()
 
-    # if opt.dataset == 'nyuv2':
-    #     pretrained_model = "../data/MTA/NYUv2_autol_model.pth"
-    # elif opt.dataset == 'cityscapes':
-    #     pretrained_model = "../data/MTA/Cityscapes_model.pth"
-
     # model.load_state_dict(torch.load(pretrained_model))
 
-    load_path = f'../data/MTA/{opt.dataset}_model_epsilon_0.0157.pth'  # 0.0078, 0.0157, 0.0314
+    load_path = f'../data/MTA/{opt.dataset}_model_epsilon_0.0078.pth'  # 0.0078, 0.0157, 0.0314
     model.load_state_dict(torch.load(load_path))
 
     # evaluating test data
@@ -339,8 +334,7 @@ for index in range(total_epoch):
             # T1_attack_loss = test_loss[0]-torch.abs(test_loss[1])-torch.abs(test_loss[2])
             # T2_attack_loss = -torch.abs(test_loss[0])+test_loss[1]-torch.abs(test_loss[2])
             # T3_attack_loss = -torch.abs(test_loss[0])-torch.abs(test_loss[1])+test_loss[2]
-
-            
+   
             model.zero_grad()
 
             # test_loss[1].backward()
@@ -377,7 +371,7 @@ for index in range(total_epoch):
                 delta = torch.clamp(adv_images - ori_images, min=-epsilon, max=epsilon)
                 test_data = torch.clamp(ori_images + delta, min=-1, max=1).detach()
             
-            para = 0   #####para = 0 
+            para = 0
             stride1 = 0
             stride2 = 0
 
@@ -440,19 +434,6 @@ for index in range(total_epoch):
         test_loss = [compute_loss(test_pred[i], test_target[task_id], task_id) for i, task_id in enumerate(train_tasks)]
 
         test_metric.update_metric(test_pred, test_target, test_loss)
-        
-    # with torch.no_grad():
-    #     test_dataset = iter(test_loader)
-    #     for k in range(test_batch):
-    #         test_data, test_target = next(test_dataset)
-    #         test_data = test_data.to(device)
-    #         test_target = {task_id: test_target[task_id].to(device) for task_id in train_tasks.keys()}
-
-    #         test_pred = model(test_data)
-    #         test_loss = [compute_loss(test_pred[i], test_target[task_id], task_id) for i, task_id in
-    #                      enumerate(train_tasks)]
-
-    #         test_metric.update_metric(test_pred, test_target, test_loss)
 
     test_str = test_metric.compute_metric()
     test_metric.reset()
